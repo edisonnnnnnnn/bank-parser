@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Bank Statement Parser</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
+    input, button { font-size: 16px; padding: 8px; margin: 8px 0; }
+    pre { background: #f4f4f4; padding: 16px; overflow-x: auto; border-radius: 6px; }
+    .err { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Bank Statement Parser</h1>
+  <p>上傳 HSBC / 恒生 / 中銀月結單 PDF，回傳 JSON。</p>
+  <input type="file" id="pdfFile" accept=".pdf">
+  <button onclick="upload()">解析</button>
+  <p class="err" id="error"></p>
+  <pre id="result"></pre>
+
+  <script>
+    async function upload() {
+      const file = document.getElementById('pdfFile').files[0];
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+      errorEl.textContent = '';
+      resultEl.textContent = '';
+      if (!file) { errorEl.textContent = '請揀一份 PDF'; return; }
+
+      const form = new FormData();
+      form.append('pdf', file);
+
+      try {
+        const res = await fetch('/api/parse', { method: 'POST', body: form });
+        const data = await res.json();
+        resultEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        errorEl.textContent = '錯誤：' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
